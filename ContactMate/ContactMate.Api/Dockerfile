@@ -4,11 +4,11 @@ RUN apt-get update \
     clang zlib1g-dev
 
 # Build Configuration=Release
-WORKDIR /src
-COPY ["ContactMate.Api/ContactMate.Api.csproj", "ContactMate.Api/"]
-RUN dotnet restore "ContactMate.Api/ContactMate.Api.csproj"
-COPY . ./src/ContactMate.Api/
-WORKDIR "/src/ContactMate.Api"
+WORKDIR /app
+COPY ["ContactMate.Api.csproj", "./"]
+RUN dotnet restore "ContactMate.Api.csproj"
+COPY . .
+WORKDIR "/app"
 RUN dotnet build "ContactMate.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Build AS publish
@@ -20,4 +20,4 @@ FROM mcr.microsoft.com/dotnet/runtime-deps:8.0 AS final
 WORKDIR /app
 EXPOSE 8080
 COPY --from=publish /app/publish .
-ENTRYPOINT [ "./ContactMate.Api" ]
+ENTRYPOINT ["dotnet", "ContactMate.Api.dll"]
