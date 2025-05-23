@@ -1,0 +1,8 @@
+[build]
+  builder = "dockerfile"
+  dockerfilePath = "./ContactMate.Api/Dockerfile"
+
+[deploy]
+  startCommand = "dotnet ContactMate.Api.dll"
+  restartPolicyType = "always"
+  healthcheckPath = "/health"

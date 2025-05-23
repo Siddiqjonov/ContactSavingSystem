@@ -10,6 +10,14 @@ namespace ContactMate.Api
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Set port for deployment (Railway) but allow local default behavior
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            if (!builder.Environment.IsDevelopment())
+            {
+                builder.WebHost.UseUrls($"http://*:{port}");
+            }
+            builder.Services.AddHealthChecks();
+
             // Add services to the container.
             builder.ConfigureDatabase();
             builder.RegisterServices();
@@ -34,6 +42,8 @@ namespace ContactMate.Api
 
             var app = builder.Build();
 
+            app.UseHealthChecks("/health");
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -41,19 +51,14 @@ namespace ContactMate.Api
                 app.UseSwaggerUI();
             }
 
-            //app.UseMiddleware<NightBlockMiddleware>();
             app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
-            
             app.UseCors("AllowAll");
 
             app.MapControllers();
-
             app.MapAuthEndpoints();
             app.MapContactEndpoints();
             app.MapAdminEndpoints();
