@@ -1,8 +1,8 @@
 [build]
-  builder = "dockerfile"
-  dockerfilePath = "ContactMate.Api/Dockerfile"
+builder = "dockerfile"
+dockerfilePath = "ContactMate.Api/Dockerfile"
 
 [deploy]
-  startCommand = "dotnet ContactMate.Api.dll"
-  restartPolicyType = "always"
-  healthcheckPath = "/health"
+startCommand = "dotnet ContactMate.Api.dll"
+restartPolicyType = "always"
+healthcheckPath = "/health"  # Adjust if you have a different healthcheck endpoint
