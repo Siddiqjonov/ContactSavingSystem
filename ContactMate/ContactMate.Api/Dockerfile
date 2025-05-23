@@ -1,28 +1,34 @@
-# Install clang/zlib1g-dev dependencies for publishing to native
-RUN apt-get update \
- && apt-get install -y --no-install-recommends \
-    clang zlib1g-dev
-
-# Build Stage
+# Stage 1: Build the application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
-WORKDIR /src
-COPY ["ContactMate.Api.csproj", "."]
-COPY ["../ContactMate.Bll/ContactMate.Bll.csproj", "../ContactMate.Bll/"]
-COPY ["../ContactMate.Core/ContactMate.Core.csproj", "../ContactMate.Core/"]
-COPY ["../ContactMate.Dal/ContactMate.Dal.csproj", "../ContactMate.Dal/"]
-RUN dotnet restore "ContactMate.Api.csproj"
-COPY . .
-WORKDIR /src
-RUN dotnet build "ContactMate.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
-
-# Publish Stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "ContactMate.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-# Final Stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ContactMate.Api.dll"]
+
+# Copy the solution file and project files
+COPY *.sln .
+COPY ContactMATE.Api/*.csproj ./ContactMATE.Api/
+COPY ContactMATE.BLL/*.csproj ./ContactMATE.BLL/
+COPY ContactMATE.Core/*.csproj ./ContactMATE.Core/
+COPY ContactMATE.Dal/*.csproj ./ContactMATE.Dal/
+
+# Restore dependencies
+RUN dotnet restore
+
+# Copy the rest of the application code
+COPY ContactMATE.Api/. ./ContactMATE.Api/
+COPY ContactMATE.BLL/. ./ContactMATE.BLL/
+COPY ContactMATE.Core/. ./ContactMATE.Core/
+COPY ContactMATE.Dal/. ./ContactMATE.Dal/
+
+# Build the application
+WORKDIR /app/ContactMATE.Api
+RUN dotnet publish -c Release -o out
+
+# Stage 2: Create the runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/ContactMATE.Api/out ./
+
+# Expose the port the app runs on (default for ASP.NET Core is 8080)
+EXPOSE 8080
+
+# Set the entry point to run the application
+ENTRYPOINT ["dotnet", "ContactMATE.Api.dll"]
