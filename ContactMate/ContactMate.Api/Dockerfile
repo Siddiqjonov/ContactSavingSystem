@@ -5,10 +5,8 @@ RUN apt-get update \
 
 # Build Configuration=Release
 WORKDIR /app
-COPY ["ContactMate.Api.csproj", "./"]
-RUN dotnet restore "ContactMate.Api.csproj"
 COPY . .
-WORKDIR "/app"
+RUN dotnet restore "ContactMate.Api.csproj"
 RUN dotnet build "ContactMate.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Build AS publish
