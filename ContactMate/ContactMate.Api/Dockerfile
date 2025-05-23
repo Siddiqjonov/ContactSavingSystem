@@ -6,7 +6,7 @@ COPY ["ContactMate.Api/ContactMate.Api.csproj", "ContactMate.Api/"]
 COPY ["ContactMate.Bll/ContactMate.Bll.csproj", "ContactMate.Bll/"]
 COPY ["ContactMate.Core/ContactMate.Core.csproj", "ContactMate.Core/"]
 COPY ["ContactMate.Dal/ContactMate.Dal.csproj", "ContactMate.Dal/"]
-RUN dotnet restore "D:/Full-stack/BackEnd/FreeTimeProjects/GoodProjects/ContactSavingSystem/ContactMate/ContactMate.Api/ContactMate.Api.csproj"
+RUN dotnet restore "./ContactSavingSystem/ContactMate/ContactMate.Api/ContactMate.Api.csproj"
 COPY . .
 WORKDIR "/src/ContactMate.Api"
 RUN dotnet build "./ContactMate.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
